@@ -19,6 +19,15 @@ usage() {
 case "$1" in
   install)
     cd "$DIR"
+    # Ensure build tools and python3-venv are available (required on Ubuntu servers)
+    if ! command -v g++ &>/dev/null; then
+      echo "Installing build-essential..."
+      apt install -y build-essential
+    fi
+    if ! python3 -m venv --help &>/dev/null; then
+      echo "Installing python3-venv..."
+      apt install -y python3-venv python3-pip
+    fi
     python3 -m venv .venv
     $VENV/bin/pip install --upgrade pip -q
     $VENV/bin/pip install "numpy<2.0" onnxruntime==1.23.2 -q
