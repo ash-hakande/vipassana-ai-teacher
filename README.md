@@ -25,7 +25,7 @@ Both Generator and Grounder run via [OpenRouter](https://openrouter.ai), default
 ## Requirements
 
 - Python 3.10+
-- `build-essential` (`apt install build-essential` on Ubuntu — needed to compile `chroma-hnswlib`)
+- `build-essential` + `python3-dev` (`apt install build-essential python3-dev` on Ubuntu — needed to compile `chroma-hnswlib`)
 - `python3-venv` (`apt install python3-venv` on Ubuntu)
 - An [OpenRouter](https://openrouter.ai) API key
 

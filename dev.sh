@@ -12,7 +12,8 @@ usage() {
   echo ""
   echo "  install   Create .venv and install dependencies"
   echo "  ingest    Load documents into the vector store (run before 'start')"
-  echo "  start     Start the dev server at http://localhost:8085"
+  echo "  start     Start with auto-reload (local development only)"
+  echo "  serve     Start without auto-reload (use this on servers)"
   echo ""
 }
 
@@ -23,6 +24,10 @@ case "$1" in
     if ! command -v g++ &>/dev/null; then
       echo "Installing build-essential..."
       apt install -y build-essential
+    fi
+    if ! dpkg -s python3-dev &>/dev/null 2>&1; then
+      echo "Installing python3-dev..."
+      apt install -y python3-dev
     fi
     if ! python3 -m venv --help &>/dev/null; then
       echo "Installing python3-venv..."
@@ -43,6 +48,12 @@ case "$1" in
     PORT=$(grep -E '^PORT=' .env 2>/dev/null | cut -d= -f2 | tr -d '[:space:]')
     PORT=${PORT:-8085}
     $UVICORN app.main:app --host 0.0.0.0 --port "$PORT" --reload
+    ;;
+  serve)
+    cd "$DIR"
+    PORT=$(grep -E '^PORT=' .env 2>/dev/null | cut -d= -f2 | tr -d '[:space:]')
+    PORT=${PORT:-8085}
+    $UVICORN app.main:app --host 0.0.0.0 --port "$PORT"
     ;;
   *)
     usage
