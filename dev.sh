@@ -1,14 +1,16 @@
 #!/usr/bin/env bash
 set -e
 
-VENV="/home/aishwarya/.cache/pypoetry/virtualenvs/vipassana-ai-teacher-YAdGNT4d-py3.10"
+# Use .venv inside the project directory (works on any machine)
+DIR="$(cd "$(dirname "$0")" && pwd)"
+VENV="$DIR/.venv"
 PYTHON="$VENV/bin/python"
 UVICORN="$VENV/bin/uvicorn"
 
 usage() {
   echo "Usage: ./dev.sh <command>"
   echo ""
-  echo "  install   Install dependencies"
+  echo "  install   Create .venv and install dependencies"
   echo "  ingest    Load documents into the vector store (run before 'start')"
   echo "  start     Start the dev server at http://localhost:8085"
   echo ""
@@ -16,17 +18,22 @@ usage() {
 
 case "$1" in
   install)
-    pip install "numpy<2.0" onnxruntime==1.23.2 -q
-    pip install -r requirements.txt -q
-    echo "Dependencies installed."
+    cd "$DIR"
+    python3 -m venv .venv
+    $VENV/bin/pip install --upgrade pip -q
+    $VENV/bin/pip install "numpy<2.0" onnxruntime==1.23.2 -q
+    $VENV/bin/pip install -r requirements.txt -q
+    echo "Dependencies installed in $VENV"
     ;;
   ingest)
-    cd "$(dirname "$0")"
+    cd "$DIR"
     $PYTHON -m app.ingest
     ;;
   start)
-    cd "$(dirname "$0")"
-    $UVICORN app.main:app --host 0.0.0.0 --port 8085 --reload
+    cd "$DIR"
+    PORT=$(grep -E '^PORT=' .env 2>/dev/null | cut -d= -f2 | tr -d '[:space:]')
+    PORT=${PORT:-8085}
+    $UVICORN app.main:app --host 0.0.0.0 --port "$PORT" --reload
     ;;
   *)
     usage
