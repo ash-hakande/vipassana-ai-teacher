@@ -45,5 +45,5 @@ class GeneratorAgent:
             system_prompt=system,
             user_prompt=question,
             temperature=0.7,
-            max_tokens=600,
+            max_tokens=1024,
         )
