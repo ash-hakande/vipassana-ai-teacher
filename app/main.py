@@ -143,39 +143,40 @@ _DEMO_HTML = """<!DOCTYPE html>
       display: flex;
       flex-direction: column;
       align-items: center;
-      padding: 32px 16px;
+      padding: 20px 16px;
     }
-    .container { width: 100%; max-width: 680px; }
-    header { text-align: center; margin-bottom: 24px; }
+    .container { width: 100%; max-width: 900px; }
+    header { text-align: center; margin-bottom: 16px; }
     header h1 {
-      font-size: 1.5rem;
+      font-size: 1.4rem;
       font-weight: normal;
       letter-spacing: 0.05em;
       color: #5a4a2a;
       border-bottom: 1px solid #c8b896;
-      padding-bottom: 12px;
+      padding-bottom: 10px;
     }
-    header p { font-size: 0.85rem; color: #8a7a5a; margin-top: 6px; }
+    header p { font-size: 0.82rem; color: #8a7a5a; margin-top: 5px; }
     #chat-window {
       background: #fff;
       border: 1px solid #d8ccb4;
       border-radius: 6px;
-      height: 460px;
+      height: calc(100vh - 210px);
+      min-height: 400px;
       overflow-y: auto;
       padding: 20px;
-      margin-bottom: 14px;
+      margin-bottom: 12px;
       display: flex;
       flex-direction: column;
       gap: 12px;
     }
-    .msg { display: flex; flex-direction: column; max-width: 85%; }
+    .msg { display: flex; flex-direction: column; max-width: 88%; }
     .msg.user { align-self: flex-end; align-items: flex-end; }
     .msg.ai   { align-self: flex-start; align-items: flex-start; }
     .bubble {
       padding: 10px 14px;
       border-radius: 12px;
       line-height: 1.55;
-      font-size: 0.95rem;
+      font-size: 0.875rem;
       white-space: pre-wrap;
     }
     .msg.user .bubble { background: #d4e8f7; color: #1a2a3a; border-bottom-right-radius: 3px; }
@@ -244,7 +245,7 @@ _DEMO_HTML = """<!DOCTYPE html>
     .msg.ai .bubble strong { font-weight: 700; }
     .msg.ai .bubble em { font-style: italic; }
     .msg.ai .bubble h1, .msg.ai .bubble h2, .msg.ai .bubble h3 {
-      font-size: 1rem; font-weight: 700; margin: 0.7em 0 0.3em;
+      font-size: 0.875rem; font-weight: 700; margin: 0.7em 0 0.3em;
     }
     .msg.ai .bubble code {
       font-family: monospace; background: #e8e0d0; padding: 1px 4px; border-radius: 3px;
