@@ -22,6 +22,7 @@ class Config:
     CHUNK_SIZE: int = 600
     CHUNK_OVERLAP: int = 100
     EMBEDDING_MODEL: str = "all-MiniLM-L6-v2"
+    SOURCES_FILE: str = os.getenv("SOURCES_FILE", "./sources.json")
 
     @classmethod
     def validate(cls):

@@ -9,8 +9,9 @@ def _format_context(chunks: List[dict]) -> str:
     if not chunks:
         return "(No relevant passages found in the documents.)"
     lines = []
-    for i, c in enumerate(chunks, 1):
-        lines.append(f"[Chunk {i}] (Source: {c['source']})\n{c['text']}")
+    for c in chunks:
+        label = c.get("citation") or c["source"]
+        lines.append(f"[{label}]\n{c['text']}")
     return "\n\n".join(lines)
 
 

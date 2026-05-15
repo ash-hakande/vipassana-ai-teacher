@@ -1,4 +1,4 @@
-# Vipassana AI Teacher
+# Vipassana AI Assistant
 
 A conversational AI teacher grounded in Vipassana teaching documents. Uses a multi-agent RAG pipeline — a Generator answers from deep knowledge of the tradition, a Grounder enriches the response with citations from the indexed documents.
 

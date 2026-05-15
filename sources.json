@@ -1,0 +1,51 @@
+{
+  "_note": "Map each document filename (in documents/) to its metadata. 'chapters' is a list of {page, title} entries sorted by page — ingest will resolve which chapter a chunk belongs to. Remove this _note key if it causes issues.",
+
+  "the_art_of_living.pdf": {
+    "title": "The Art of Living",
+    "author": "William Hart",
+    "url": "",
+    "type": "book",
+    "chapters": [
+      {"page": 1,  "title": "Preface"},
+      {"page": 9,  "title": "Ch. 1 — The Search"},
+      {"page": 21, "title": "Ch. 2 — The Starting Point"},
+      {"page": 37, "title": "Ch. 3 — The Immediate Cause"},
+      {"page": 51, "title": "Ch. 4 — The Root of the Problem"},
+      {"page": 67, "title": "Ch. 5 — The Training of Moral Conduct"},
+      {"page": 81, "title": "Ch. 6 — The Training of the Mind"},
+      {"page": 97, "title": "Ch. 7 — Satipatthana: The Establishing of Awareness"},
+      {"page": 111,"title": "Ch. 8 — Vipassana: Insight into Reality"},
+      {"page": 127,"title": "Ch. 9 — The Goal"},
+      {"page": 141,"title": "Ch. 10 — The Art of Living"},
+      {"page": 155,"title": "Appendices"}
+    ]
+  },
+
+  "discourse_summaries.pdf": {
+    "title": "Discourse Summaries",
+    "author": "S.N. Goenka",
+    "url": "",
+    "type": "book",
+    "chapters": [
+      {"page": 1,  "title": "Day 1 Discourse"},
+      {"page": 9,  "title": "Day 2 Discourse"},
+      {"page": 17, "title": "Day 3 Discourse"},
+      {"page": 25, "title": "Day 4 Discourse"},
+      {"page": 33, "title": "Day 5 Discourse"},
+      {"page": 41, "title": "Day 6 Discourse"},
+      {"page": 49, "title": "Day 7 Discourse"},
+      {"page": 57, "title": "Day 8 Discourse"},
+      {"page": 65, "title": "Day 9 Discourse"},
+      {"page": 73, "title": "Day 10 Discourse"}
+    ]
+  },
+
+  "vipassana_research.pdf": {
+    "title": "Vipassana: Its Relevance to the Present World",
+    "author": "S.N. Goenka",
+    "url": "",
+    "type": "book",
+    "chapters": []
+  }
+}

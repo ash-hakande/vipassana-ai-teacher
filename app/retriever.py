@@ -17,6 +17,9 @@ def _format_chunks(results: dict) -> List[dict]:
             "text": doc,
             "source": meta.get("source", "unknown"),
             "chunk_id": meta.get("chunk_id", ""),
+            "citation": meta.get("citation", ""),
+            "url": meta.get("url", ""),
+            "page": meta.get("page", -1),
             "distance": dist,
         })
     return chunks

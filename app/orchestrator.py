@@ -61,7 +61,13 @@ class Orchestrator:
             "session_id": session_id,
             "reply": final_reply,
             "sources": [
-                {"text": c["text"], "source": c["source"], "chunk_id": c["chunk_id"]}
+                {
+                    "text": c["text"],
+                    "source": c["source"],
+                    "chunk_id": c["chunk_id"],
+                    "citation": c.get("citation", ""),
+                    "url": c.get("url", ""),
+                }
                 for c in chunks
             ],
             "critic_approved": grounded,

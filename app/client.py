@@ -31,7 +31,7 @@ async def _call_agent(
         kwargs: Dict[str, Any] = dict(
             extra_headers={
                 "HTTP-Referer": "https://vipassana-teacher.local",
-                "X-Title": "Vipassana AI Teacher",
+                "X-Title": "Vipassana AI Assistant",
             },
             model=agent,
             messages=[

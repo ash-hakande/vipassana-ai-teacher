@@ -25,7 +25,7 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 app = FastAPI(
-    title="Vipassana AI Teacher",
+    title="Vipassana AI Assistant",
     description="Multi-agent RAG chatbot grounded in Vipassana teaching documents",
     version="0.1.0",
 )
@@ -45,7 +45,7 @@ async def startup():
     global _orchestrator
     Config.validate()
     _orchestrator = Orchestrator()
-    logger.info("Vipassana AI Teacher started on port %s", config.PORT)
+    logger.info("Vipassana AI Assistant started on port %s", config.PORT)
 
 
 # ── Endpoints ──────────────────────────────────────────────────────────────
@@ -130,7 +130,9 @@ _DEMO_HTML = """<!DOCTYPE html>
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Vipassana AI Teacher</title>
+  <title>Vipassana AI Assistant</title>
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/dompurify@3/dist/purify.min.js"></script>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     body {
@@ -186,6 +188,8 @@ _DEMO_HTML = """<!DOCTYPE html>
       padding-left: 6px;
       border-left: 2px solid #c8b896;
     }
+    .sources a { color: #7a5c2a; text-decoration: underline; }
+    .citation { color: #8b5e2a; font-style: italic; font-size: 0.88em; }
     .critic-note {
       font-size: 0.72rem;
       color: #b07040;
@@ -232,13 +236,26 @@ _DEMO_HTML = """<!DOCTYPE html>
       min-height: 1.2em;
     }
     .thinking { opacity: 0.6; font-style: italic; }
+    /* markdown prose inside AI bubbles */
+    .msg.ai .bubble p { margin: 0 0 0.6em; }
+    .msg.ai .bubble p:last-child { margin-bottom: 0; }
+    .msg.ai .bubble ul, .msg.ai .bubble ol { padding-left: 1.4em; margin: 0 0 0.6em; }
+    .msg.ai .bubble li { margin-bottom: 0.2em; }
+    .msg.ai .bubble strong { font-weight: 700; }
+    .msg.ai .bubble em { font-style: italic; }
+    .msg.ai .bubble h1, .msg.ai .bubble h2, .msg.ai .bubble h3 {
+      font-size: 1rem; font-weight: 700; margin: 0.7em 0 0.3em;
+    }
+    .msg.ai .bubble code {
+      font-family: monospace; background: #e8e0d0; padding: 1px 4px; border-radius: 3px;
+    }
   </style>
 </head>
 <body>
   <div class="container">
     <header>
-      <h1>Vipassana AI Teacher</h1>
-      <p>Answers grounded strictly in the provided teaching documents</p>
+      <h1>Vipassana AI Assistant</h1>
+      <p>Answers grounded in the provided teaching documents. AI can make mistakes — always verify with a qualified teacher.</p>
     </header>
     <div id="chat-window"></div>
     <div class="input-row">
@@ -315,14 +332,28 @@ _DEMO_HTML = """<!DOCTYPE html>
       div.className = 'msg ai' + (approved === false ? ' refused' : '');
       const bubble = document.createElement('div');
       bubble.className = 'bubble';
-      bubble.textContent = text;
+      const md = marked.parse(text).replace(
+        /\[([^\]<>]+)\]/g,
+        '<span class="citation">[$1]</span>'
+      );
+      bubble.innerHTML = DOMPurify.sanitize(md);
       div.appendChild(bubble);
 
       if (sources && sources.length) {
-        const uniqueSources = [...new Set(sources.map(s => s.source))];
+        const seen = new Set();
+        const unique = sources.filter(s => {
+          const key = s.citation || s.source;
+          if (seen.has(key)) return false;
+          seen.add(key); return true;
+        });
         const src = document.createElement('div');
         src.className = 'sources';
-        src.textContent = 'Sources: ' + uniqueSources.join(', ');
+        src.innerHTML = 'Sources: ' + unique.map(s => {
+          const label = s.citation || s.source;
+          return s.url
+            ? `<a href="${s.url}" target="_blank" rel="noopener noreferrer">${label}</a>`
+            : label;
+        }).join(' &middot; ');
         div.appendChild(src);
       }
       if (note) {
