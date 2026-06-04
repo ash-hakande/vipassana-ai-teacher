@@ -36,7 +36,7 @@ type RespondResponse = {
   critic_note?: string | null;
 };
 
-const apiBaseUrl = (process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8080").replace(/\/$/, "");
+const apiBaseUrl = (process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:9090").replace(/\/$/, "");
 
 function uniqueSources(sources: SourcePassage[]) {
   const seen = new Set<string>();

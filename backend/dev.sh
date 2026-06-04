@@ -31,13 +31,13 @@ case "$1" in
   start)
     cd "$DIR"
     PORT=$(grep -E '^PORT=' .env 2>/dev/null | cut -d= -f2 | tr -d '[:space:]')
-    PORT=${PORT:-8080}
+    PORT=${PORT:-9090}
     "$UVICORN" app.main:app --host 0.0.0.0 --port "$PORT" --reload
     ;;
   serve)
     cd "$DIR"
     PORT=$(grep -E '^PORT=' .env 2>/dev/null | cut -d= -f2 | tr -d '[:space:]')
-    PORT=${PORT:-8080}
+    PORT=${PORT:-9090}
     "$UVICORN" app.main:app --host 0.0.0.0 --port "$PORT"
     ;;
   *)

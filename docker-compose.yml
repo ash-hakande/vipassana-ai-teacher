@@ -25,7 +25,7 @@ services:
       context: ./backend
       dockerfile: Dockerfile
     expose:
-      - '8080'
+      - '9090'
     env_file:
       - path: ./backend/.env
         required: false

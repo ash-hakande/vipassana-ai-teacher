@@ -9,7 +9,7 @@ usage() {
   echo "Usage: ./dev.sh <command>"
   echo ""
   echo "Local Docker:"
-  echo "  up        Start backend container at http://localhost:8080"
+  echo "  up        Start backend container at http://localhost:9090"
   echo "  build     Build backend image with --no-cache"
   echo "  down      Stop and remove local containers"
   echo "  restart   No-cache rebuild + restart"
@@ -30,8 +30,8 @@ usage() {
 case "$1" in
   up)
     docker compose -f "$COMPOSE_LOCAL" up -d
-    echo "Backend running at http://localhost:8080"
-    echo "Swagger UI at http://localhost:8080/docs"
+    echo "Backend running at http://localhost:9090"
+    echo "Swagger UI at http://localhost:9090/docs"
     ;;
   build)
     docker compose -f "$COMPOSE_LOCAL" build --no-cache backend

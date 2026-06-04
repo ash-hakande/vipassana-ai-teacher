@@ -40,7 +40,7 @@ Local Python workflow:
 ./backend/dev.sh start
 ```
 
-The API runs at `http://localhost:8080`.
+The API runs at `http://localhost:9090`.
 
 Local Docker workflow:
 
@@ -60,7 +60,7 @@ cp frontend/.env.example frontend/.env.local
 Set:
 
 ```bash
-NEXT_PUBLIC_API_BASE_URL=http://localhost:8080
+NEXT_PUBLIC_API_BASE_URL=http://localhost:9090
 ```
 
 Run the app:
