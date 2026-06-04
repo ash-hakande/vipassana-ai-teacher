@@ -1,0 +1,46 @@
+services:
+  nginx:
+    image: nginx:alpine
+    ports:
+      - '80:80'
+      - '443:443'
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./certbot/conf:/etc/letsencrypt:ro
+      - ./certbot/www:/var/www/certbot:ro
+    depends_on:
+      - backend
+    restart: always
+    networks:
+      - vipassana-network
+
+  certbot:
+    image: certbot/certbot
+    volumes:
+      - ./certbot/conf:/etc/letsencrypt
+      - ./certbot/www:/var/www/certbot
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    expose:
+      - '8080'
+    env_file:
+      - path: ./backend/.env
+        required: false
+    environment:
+      - CHROMA_PERSIST_DIR=/app/chroma_db
+      - DOCUMENTS_DIR=/app/documents
+      - SOURCES_FILE=/app/sources.json
+    volumes:
+      - ./chroma_db:/app/chroma_db
+      - ./documents:/app/documents:ro
+      - ./sources.json:/app/sources.json:ro
+    restart: always
+    networks:
+      - vipassana-network
+
+networks:
+  vipassana-network:
+    driver: bridge
