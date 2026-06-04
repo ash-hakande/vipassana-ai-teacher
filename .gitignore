@@ -8,5 +8,6 @@ __pycache__/
 backend/.venv/
 frontend/.next/
 frontend/node_modules/
+reverse-proxy/certbot/
 dist/
 *.egg-info/
