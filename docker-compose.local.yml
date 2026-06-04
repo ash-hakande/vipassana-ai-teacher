@@ -12,7 +12,6 @@ services:
       - CHROMA_PERSIST_DIR=/app/chroma_db
       - DOCUMENTS_DIR=/app/documents
       - SOURCES_FILE=/app/sources.json
-      - CORS_EXTRA_ORIGINS=${CORS_EXTRA_ORIGINS:-http://localhost:3000,http://127.0.0.1:3000}
     volumes:
       - ./chroma_db:/app/chroma_db
       - ./documents:/app/documents:ro
