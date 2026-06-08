@@ -1,0 +1,19 @@
+services:
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    ports:
+      - '9090:9090'
+    env_file:
+      - path: ./backend/.env
+        required: false
+    environment:
+      - CHROMA_PERSIST_DIR=/app/chroma_db
+      - DOCUMENTS_DIR=/app/documents
+      - SOURCES_FILE=/app/sources.json
+    volumes:
+      - ./chroma_db:/app/chroma_db
+      - ./documents:/app/documents:ro
+      - ./sources.json:/app/sources.json:ro
+    restart: unless-stopped

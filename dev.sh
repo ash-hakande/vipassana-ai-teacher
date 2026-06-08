@@ -1,59 +1,68 @@
 #!/usr/bin/env bash
 set -e
 
-# Use .venv inside the project directory (works on any machine)
-DIR="$(cd "$(dirname "$0")" && pwd)"
-VENV="$DIR/.venv"
-PYTHON="$VENV/bin/python"
-UVICORN="$VENV/bin/uvicorn"
+COMPOSE_LOCAL="docker-compose.local.yml"
+COMPOSE_PROD="docker-compose.yml"
+LOCAL_CONTAINER="vipassana-ai-teacher-backend-1"
 
 usage() {
   echo "Usage: ./dev.sh <command>"
   echo ""
-  echo "  install   Create .venv and install dependencies"
-  echo "  ingest    Load documents into the vector store (run before 'start')"
-  echo "  start     Start with auto-reload (local development only)"
-  echo "  serve     Start without auto-reload (use this on servers)"
+  echo "Local Docker:"
+  echo "  up        Start backend container at http://localhost:9090"
+  echo "  build     Build backend image with --no-cache"
+  echo "  down      Stop and remove local containers"
+  echo "  restart   No-cache rebuild + restart"
+  echo "  logs      Tail backend logs"
+  echo "  shell     Open a shell inside the backend container"
   echo ""
+  echo "Production Docker:"
+  echo "  prod-up   Build and start nginx + backend + certbot"
+  echo "  prod-down Stop and remove production containers"
+  echo ""
+  echo "Utility:"
+  echo "  ps        Show local compose status"
+  echo "  clean     Remove stopped containers and dangling images"
+  echo ""
+  echo "Backend local venv commands remain available at ./backend/dev.sh"
 }
 
 case "$1" in
-  install)
-    cd "$DIR"
-    # Ensure build tools and python3-venv are available (required on Ubuntu servers)
-    if ! command -v g++ &>/dev/null; then
-      echo "Installing build-essential..."
-      apt install -y build-essential
-    fi
-    if ! dpkg -s python3-dev &>/dev/null 2>&1; then
-      echo "Installing python3-dev..."
-      apt install -y python3-dev
-    fi
-    if ! python3 -m venv --help &>/dev/null; then
-      echo "Installing python3-venv..."
-      apt install -y python3-venv python3-pip
-    fi
-    python3 -m venv .venv
-    $VENV/bin/pip install --upgrade pip -q
-    $VENV/bin/pip install "numpy<2.0" onnxruntime==1.23.2 -q
-    $VENV/bin/pip install -r requirements.txt -q
-    echo "Dependencies installed in $VENV"
+  up)
+    docker compose -f "$COMPOSE_LOCAL" up -d
+    echo "Backend running at http://localhost:9090"
+    echo "Swagger UI at http://localhost:9090/docs"
     ;;
-  ingest)
-    cd "$DIR"
-    $PYTHON -m app.ingest
+  build)
+    docker compose -f "$COMPOSE_LOCAL" build --no-cache backend
     ;;
-  start)
-    cd "$DIR"
-    PORT=$(grep -E '^PORT=' .env 2>/dev/null | cut -d= -f2 | tr -d '[:space:]')
-    PORT=${PORT:-8085}
-    $UVICORN app.main:app --host 0.0.0.0 --port "$PORT" --reload
+  down)
+    docker compose -f "$COMPOSE_LOCAL" down
     ;;
-  serve)
-    cd "$DIR"
-    PORT=$(grep -E '^PORT=' .env 2>/dev/null | cut -d= -f2 | tr -d '[:space:]')
-    PORT=${PORT:-8085}
-    $UVICORN app.main:app --host 0.0.0.0 --port "$PORT"
+  restart)
+    docker compose -f "$COMPOSE_LOCAL" down
+    docker compose -f "$COMPOSE_LOCAL" build --no-cache backend
+    docker compose -f "$COMPOSE_LOCAL" up -d
+    echo "Restarted. Logs: ./dev.sh logs"
+    ;;
+  logs)
+    docker logs -f "$LOCAL_CONTAINER"
+    ;;
+  shell)
+    docker exec -it "$LOCAL_CONTAINER" /bin/bash
+    ;;
+  prod-up)
+    docker compose -f "$COMPOSE_PROD" up --build -d
+    ;;
+  prod-down)
+    docker compose -f "$COMPOSE_PROD" down
+    ;;
+  ps)
+    docker compose -f "$COMPOSE_LOCAL" ps
+    ;;
+  clean)
+    docker container prune -f
+    docker image prune -f
     ;;
   *)
     usage

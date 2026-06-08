@@ -1,7 +1,13 @@
 .env
+backend/.env
+frontend/.env.local
 chroma_db/
 __pycache__/
 *.pyc
 .venv/
+backend/.venv/
+frontend/.next/
+frontend/node_modules/
+reverse-proxy/certbot/
 dist/
 *.egg-info/
