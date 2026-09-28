@@ -12,8 +12,10 @@ services:
       - CHROMA_PERSIST_DIR=/app/chroma_db
       - DOCUMENTS_DIR=/app/documents
       - SOURCES_FILE=/app/sources.json
+      - MESSAGES_FILE=/app/data/messages.jsonl
     volumes:
       - ./chroma_db:/app/chroma_db
       - ./documents:/app/documents:ro
       - ./sources.json:/app/sources.json:ro
+      - ./data:/app/data
     restart: unless-stopped

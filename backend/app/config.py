@@ -27,6 +27,11 @@ class Config:
     CHUNK_OVERLAP: int = 100
     EMBEDDING_MODEL: str = "all-MiniLM-L6-v2"
     SOURCES_FILE: str = os.getenv("SOURCES_FILE", "../sources.json")
+    # HTTP Basic credentials for /eval, /messages and /docs; disabled while ADMIN_PASSWORD is unset
+    ADMIN_USER: str = os.getenv("ADMIN_USER", "admin")
+    ADMIN_PASSWORD: str = os.getenv("ADMIN_PASSWORD", "")
+    # Messages sent through the feedback form; viewable at /messages (admin login)
+    MESSAGES_FILE: str = os.getenv("MESSAGES_FILE", "../data/messages.jsonl")
 
     @classmethod
     def validate(cls):

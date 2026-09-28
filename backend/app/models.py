@@ -2,7 +2,7 @@ import uuid
 from dataclasses import dataclass, field
 from typing import Dict, List, Optional
 
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 
 # ── Pydantic request/response schemas ──────────────────────────────────────
@@ -17,12 +17,21 @@ class RespondRequest(BaseModel):
     message: str
 
 
+class ContactRequest(BaseModel):
+    message: str = Field(min_length=1, max_length=5000)
+    name: str = Field(default="", max_length=200)
+    email: str = Field(default="", max_length=200)
+    # Honeypot: hidden in the form, so only bots fill it in
+    website: str = ""
+
+
 class SourcePassage(BaseModel):
     text: str
     source: str
     chunk_id: str
     citation: str = ""
     url: str = ""
+    page: int = -1
 
 
 class RespondResponse(BaseModel):
@@ -31,6 +40,31 @@ class RespondResponse(BaseModel):
     sources: List[SourcePassage]
     critic_approved: bool
     critic_note: Optional[str] = None
+
+
+class EvalConfig(BaseModel):
+    model: str
+    top_k: int = 5
+
+
+class EvalRequest(BaseModel):
+    question: str
+    configs: List[EvalConfig]
+
+
+class EvalRunResult(BaseModel):
+    config: EvalConfig
+    reply: str
+    sources: List[SourcePassage]
+    critic_approved: bool
+    critic_note: Optional[str] = None
+    latency_ms: int = 0
+    error: Optional[str] = None
+
+
+class EvalResponse(BaseModel):
+    question: str
+    results: List[EvalRunResult]
 
 
 class EndSessionResponse(BaseModel):

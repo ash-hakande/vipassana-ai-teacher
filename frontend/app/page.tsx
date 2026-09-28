@@ -5,12 +5,15 @@ import ReactMarkdown from "react-markdown";
 import rehypeSanitize from "rehype-sanitize";
 import remarkGfm from "remark-gfm";
 
+import FeedbackTab from "./FeedbackTab";
+
 type SourcePassage = {
   text: string;
   source: string;
   chunk_id: string;
   citation?: string;
   url?: string;
+  page?: number;
 };
 
 type ChatMessage = {
@@ -48,6 +51,41 @@ function uniqueSources(sources: SourcePassage[]) {
     seen.add(key);
     return true;
   });
+}
+
+function SourcesPanel({ sources }: { sources: SourcePassage[] }) {
+  const [open, setOpen] = useState(false);
+  // Deduplicated by citation, keeping the first (highest-ranked) snippet per citation
+  const unique = uniqueSources(sources);
+
+  return (
+    <>
+      <button type="button" className={`sources-toggle ${open ? "open" : ""}`} onClick={() => setOpen(!open)}>
+        <span className="arrow">&#9654;</span> Sources ({unique.length})
+      </button>
+      {open ? (
+        <div className="sources-panel">
+          {unique.map((source) => {
+            const label = source.citation || source.source;
+            return (
+              <div className="source-item" key={`${source.chunk_id}-${label}`}>
+                <div className="source-citation">
+                  {source.url ? (
+                    <a href={source.url} target="_blank" rel="noopener noreferrer">
+                      {label}
+                    </a>
+                  ) : (
+                    label
+                  )}
+                </div>
+                {source.text ? <div className="source-snippet">&ldquo;{source.text.trim()}&rdquo;</div> : null}
+              </div>
+            );
+          })}
+        </div>
+      ) : null}
+    </>
+  );
 }
 
 async function parseApiError(response: Response) {
@@ -206,26 +244,7 @@ export default function Home() {
                 )}
               </div>
 
-              {message.sources && message.sources.length > 0 ? (
-                <div className="sources">
-                  <span>Sources: </span>
-                  {uniqueSources(message.sources).map((source, index) => {
-                    const label = source.citation || source.source;
-                    return (
-                      <span key={`${source.chunk_id}-${label}`}>
-                        {index > 0 ? <span className="sourceDivider"> · </span> : null}
-                        {source.url ? (
-                          <a href={source.url} target="_blank" rel="noreferrer">
-                            {label}
-                          </a>
-                        ) : (
-                          label
-                        )}
-                      </span>
-                    );
-                  })}
-                </div>
-              ) : null}
+              {message.sources && message.sources.length > 0 ? <SourcesPanel sources={message.sources} /> : null}
 
               {message.criticNote ? <div className="critic-note">Critic: {message.criticNote}</div> : null}
             </article>
@@ -252,8 +271,13 @@ export default function Home() {
           </button>
         </form>
 
+        <p className="disclaimer">
+          This tool is under improvement. It&apos;s not endorsed by VRI. Please use it at your own risk.
+        </p>
         <div id="status">{shortSessionId && status === "Ready" ? `Ready - ${shortSessionId}...` : status}</div>
       </section>
+
+      <FeedbackTab apiBaseUrl={apiBaseUrl} />
     </main>
   );
 }

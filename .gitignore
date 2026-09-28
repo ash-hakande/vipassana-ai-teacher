@@ -2,6 +2,7 @@
 backend/.env
 frontend/.env.local
 chroma_db/
+data/
 __pycache__/
 *.pyc
 .venv/
