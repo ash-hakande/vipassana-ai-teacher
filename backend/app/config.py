@@ -13,21 +13,33 @@ class Config:
 
     # Logging: set LOG_LEVEL=DEBUG or LOG_LEVEL=INFO for verbose output; defaults to WARNING
     LOG_LEVEL: str = os.getenv("LOG_LEVEL", "WARNING").upper()
+    CORS_EXTRA_ORIGINS: str = os.getenv(
+        "CORS_EXTRA_ORIGINS",
+        "http://localhost:3000,http://127.0.0.1:3000",
+    )
 
     PORT: int = int(os.getenv("PORT", "8085"))
-    CHROMA_PERSIST_DIR: str = os.getenv("CHROMA_PERSIST_DIR", "./chroma_db")
-    DOCUMENTS_DIR: str = os.getenv("DOCUMENTS_DIR", "./documents")
+    CHROMA_PERSIST_DIR: str = os.getenv("CHROMA_PERSIST_DIR", "../chroma_db")
+    DOCUMENTS_DIR: str = os.getenv("DOCUMENTS_DIR", "../documents")
     TOP_K_CHUNKS: int = int(os.getenv("TOP_K_CHUNKS", "5"))
     COLLECTION_NAME: str = "vipassana_docs"
     CHUNK_SIZE: int = 600
     CHUNK_OVERLAP: int = 100
     EMBEDDING_MODEL: str = "all-MiniLM-L6-v2"
-    SOURCES_FILE: str = os.getenv("SOURCES_FILE", "./sources.json")
+    SOURCES_FILE: str = os.getenv("SOURCES_FILE", "../sources.json")
 
     @classmethod
     def validate(cls):
         if not cls.OPENROUTER_API_KEY:
             raise ValueError("OPENROUTER_API_KEY environment variable is required")
+
+    @classmethod
+    def cors_origins(cls):
+        return [
+            origin.strip()
+            for origin in cls.CORS_EXTRA_ORIGINS.split(",")
+            if origin.strip()
+        ]
 
 
 config = Config()

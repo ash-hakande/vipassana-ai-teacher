@@ -1,115 +1,132 @@
 # Vipassana AI Assistant
 
-A conversational AI teacher grounded in Vipassana teaching documents. Uses a multi-agent RAG pipeline — a Generator answers from deep knowledge of the tradition, a Grounder enriches the response with citations from the indexed documents.
+A conversational AI teacher grounded in Vipassana teaching documents. The project is now split into:
 
-## Architecture
+- `backend/`: FastAPI API, OpenRouter agents, ChromaDB retrieval, ingestion scripts.
+- `frontend/`: Next.js chat UI that calls the backend API.
 
-```
-User question
-      │
-      ▼
-[Retriever]  — embeds query, fetches top-5 passages from ChromaDB
-      │
-      ▼
-[Generator]  — answers from Vipassana knowledge, cites relevant passages
-      │
-      ▼
-[Grounder]   — adds citations, corrects any contradictions with documents
-      │
-      ▼
-Answer + source citations
-```
+The backend keeps persistence simple: ChromaDB is stored on disk, and chat sessions remain in memory.
 
-Both Generator and Grounder run via [OpenRouter](https://openrouter.ai), defaulting to `google/gemini-2.5-flash-preview`. Embeddings run locally using `all-MiniLM-L6-v2`.
-
-## Requirements
-
-- Python 3.10+
-- `build-essential` + `python3-dev` (`apt install build-essential python3-dev` on Ubuntu — needed to compile `chroma-hnswlib`)
-- `python3-venv` (`apt install python3-venv` on Ubuntu)
-- An [OpenRouter](https://openrouter.ai) API key
-
-## Setup
-
-**1. Clone and enter the project**
-```bash
-git clone git@github.com:ash-hakande/vipassana-ai-teacher.git
-cd vipassana-ai-teacher
-```
-
-**2. Create `.env`**
-```bash
-cp .env.example .env
-```
-Edit `.env` and fill in:
-```
-OPENROUTER_API_KEY=sk-or-v1-...
-OPENROUTER_AGENT=google/gemini-2.5-flash-preview
-OPENROUTER_REVIEWER_AGENT=google/gemini-2.5-flash-preview
-PORT=8085
-```
-
-**3. Install dependencies**
-```bash
-./dev.sh install
-```
-
-**4. Add documents**
-
-Drop Vipassana teaching PDFs or `.txt` files into the `documents/` folder, then ingest them:
-```bash
-./dev.sh ingest
-```
-
-Re-run ingest whenever you add new documents. Alternatively, copy an already-built `chroma_db/` from another machine:
-```bash
-scp -r chroma_db user@server:~/vipassana-ai-teacher/
-```
-
-**5. Start the server**
-```bash
-./dev.sh start
-```
-
-Open **http://localhost:8085** in your browser.
-
-## API Endpoints
+## API
 
 | Method | Path | Description |
 |---|---|---|
 | `POST` | `/session/start` | Start a new conversation session |
-| `POST` | `/session/{id}/respond` | Send a message, get a grounded response |
+| `POST` | `/session/{id}/respond` | Send a message and receive a grounded answer |
 | `POST` | `/session/{id}/end` | End the session |
-| `GET` | `/health` | Server status + document count |
-| `GET` | `/debug/search?q=...` | Test raw retrieval without LLM calls |
+| `GET` | `/health` | Server status and indexed document count |
+| `GET` | `/debug/search?q=...` | Raw retrieval results without LLM calls |
 
-## Environment Variables
+## Backend Setup
 
-| Variable | Default | Description |
-|---|---|---|
-| `OPENROUTER_API_KEY` | — | Required. Your OpenRouter API key |
-| `OPENROUTER_AGENT` | `google/gemini-2.5-flash-preview` | Generator model |
-| `OPENROUTER_REVIEWER_AGENT` | `google/gemini-2.5-flash-preview` | Grounder model |
-| `PORT` | `8085` | Server port |
-| `TOP_K_CHUNKS` | `5` | Number of document passages retrieved per query |
-| `LOG_LEVEL` | `INFO` | Logging verbosity (`DEBUG`, `INFO`, `WARNING`) |
-| `CHROMA_PERSIST_DIR` | `./chroma_db` | Vector store location |
-| `DOCUMENTS_DIR` | `./documents` | Source documents location |
-
-## Deploying to a Server
+Create the backend environment file:
 
 ```bash
-# On the server
-git clone git@github.com:ash-hakande/vipassana-ai-teacher.git
-cd vipassana-ai-teacher
-cp .env.example .env && nano .env   # add your API key
-./dev.sh install
-./dev.sh start
+cp backend/.env.example backend/.env
 ```
 
-To keep the server running after you disconnect, use a process manager like `systemd` or `screen`:
+Set at least:
+
 ```bash
-screen -S vipassana
-./dev.sh start
-# Ctrl+A then D to detach
+OPENROUTER_API_KEY=sk-or-v1-...
+CORS_EXTRA_ORIGINS=http://localhost:3000
+```
+
+Local Python workflow:
+
+```bash
+./backend/dev.sh install
+./backend/dev.sh ingest
+./backend/dev.sh start
+```
+
+The API runs at `http://localhost:9090`.
+
+Local Docker workflow:
+
+```bash
+./dev.sh up
+./dev.sh logs
+```
+
+## Frontend Setup
+
+Create the frontend environment file:
+
+```bash
+cp frontend/.env.example frontend/.env.local
+```
+
+Set:
+
+```bash
+NEXT_PUBLIC_API_BASE_URL=http://localhost:9090
+```
+
+Run the app:
+
+```bash
+cd frontend
+npm install
+npm run dev
+```
+
+The frontend runs at `http://localhost:3000`.
+
+## Documents and Ingestion
+
+Place source PDFs or `.txt` files in `documents/`. Source metadata is read from `sources.json`.
+
+Rebuild the Chroma index after changing documents:
+
+```bash
+./backend/dev.sh ingest
+```
+
+For Docker deployments, `documents/`, `sources.json`, and `chroma_db/` are mounted into the backend container.
+
+## Production Backend Deployment
+
+The backend deployment follows the same nginx + certbot pattern as `~/Projects/insula-be`.
+
+1. Point your API domain DNS to the server.
+2. Replace `api.example.com` in `nginx/nginx-initial.conf` and `nginx/nginx.conf`.
+3. Set production values in `backend/.env`, including:
+
+```bash
+OPENROUTER_API_KEY=sk-or-v1-...
+OPENROUTER_AGENT=google/gemini-2.5-flash-preview
+OPENROUTER_REVIEWER_AGENT=google/gemini-2.5-flash-preview
+LOG_LEVEL=INFO
+CORS_EXTRA_ORIGINS=https://your-frontend-domain.com
+```
+
+4. Start with the initial HTTP nginx config to issue the certificate:
+
+```bash
+cp nginx/nginx-initial.conf nginx/nginx.conf
+./dev.sh prod-up
+docker compose run --rm certbot certonly --webroot --webroot-path=/var/www/certbot -d api.example.com
+```
+
+5. Restore the HTTPS `nginx/nginx.conf` content with your real domain, then restart:
+
+```bash
+./dev.sh prod-up
+```
+
+## Production Frontend Deployment
+
+Deploy `frontend/` to a Next.js-compatible host such as Vercel, Netlify, or a Node host.
+
+Set this environment variable in the frontend host:
+
+```bash
+NEXT_PUBLIC_API_BASE_URL=https://your-api-domain.com
+```
+
+Then build with:
+
+```bash
+npm run build
 ```

@@ -1,0 +1,228 @@
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: Georgia, "Times New Roman", serif;
+  background: #f5f0e8;
+  color: #2c2417;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 20px 16px;
+}
+
+button,
+textarea {
+  font: inherit;
+}
+
+.container {
+  width: 100%;
+  max-width: 900px;
+}
+
+header {
+  text-align: center;
+  margin-bottom: 16px;
+}
+
+header h1 {
+  font-size: 1.4rem;
+  font-weight: normal;
+  letter-spacing: 0.05em;
+  color: #5a4a2a;
+  border-bottom: 1px solid #c8b896;
+  padding-bottom: 10px;
+}
+
+header p {
+  font-size: 0.82rem;
+  color: #8a7a5a;
+  margin-top: 5px;
+}
+
+#chat-window {
+  background: #fff;
+  border: 1px solid #d8ccb4;
+  border-radius: 6px;
+  height: calc(100vh - 210px);
+  min-height: 400px;
+  overflow-y: auto;
+  padding: 20px;
+  margin-bottom: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.msg {
+  display: flex;
+  flex-direction: column;
+  max-width: 88%;
+}
+
+.msg.user {
+  align-self: flex-end;
+  align-items: flex-end;
+}
+
+.msg.ai {
+  align-self: flex-start;
+  align-items: flex-start;
+}
+
+.bubble {
+  padding: 10px 14px;
+  border-radius: 12px;
+  line-height: 1.55;
+  font-size: 0.875rem;
+  white-space: pre-wrap;
+}
+
+.msg.user .bubble {
+  background: #d4e8f7;
+  color: #1a2a3a;
+  border-bottom-right-radius: 3px;
+}
+
+.msg.ai .bubble {
+  background: #f0ebe0;
+  color: #2c2417;
+  border-bottom-left-radius: 3px;
+}
+
+.msg.ai.refused .bubble {
+  background: #fdecea;
+  color: #8b2b2b;
+  font-style: italic;
+}
+
+.sources {
+  font-size: 0.72rem;
+  color: #9a8a6a;
+  margin-top: 4px;
+  padding-left: 6px;
+  border-left: 2px solid #c8b896;
+}
+
+.sources a {
+  color: #7a5c2a;
+  text-decoration: underline;
+}
+
+.citation {
+  color: #8b5e2a;
+  font-style: italic;
+  font-size: 0.88em;
+}
+
+.critic-note {
+  font-size: 0.72rem;
+  color: #b07040;
+  margin-top: 3px;
+  font-style: italic;
+}
+
+.input-row {
+  display: flex;
+  gap: 8px;
+  align-items: flex-end;
+}
+
+textarea {
+  flex: 1;
+  padding: 10px 14px;
+  border: 1px solid #c8b896;
+  border-radius: 6px;
+  font-family: inherit;
+  font-size: 0.95rem;
+  resize: none;
+  background: #fff;
+  color: #2c2417;
+  line-height: 1.4;
+}
+
+textarea:focus {
+  outline: none;
+  border-color: #8a6a30;
+}
+
+button {
+  padding: 10px 20px;
+  background: #7a5c2a;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  font-family: inherit;
+  font-size: 0.95rem;
+  cursor: pointer;
+  white-space: nowrap;
+  height: 42px;
+}
+
+button:hover {
+  background: #5a3c10;
+}
+
+button:disabled {
+  background: #b8a888;
+  cursor: not-allowed;
+}
+
+#status {
+  font-size: 0.78rem;
+  color: #9a8a6a;
+  margin-top: 8px;
+  text-align: center;
+  min-height: 1.2em;
+}
+
+.thinking {
+  opacity: 0.6;
+  font-style: italic;
+}
+
+.msg.ai .bubble p {
+  margin: 0 0 0.6em;
+}
+
+.msg.ai .bubble p:last-child {
+  margin-bottom: 0;
+}
+
+.msg.ai .bubble ul,
+.msg.ai .bubble ol {
+  padding-left: 1.4em;
+  margin: 0 0 0.6em;
+}
+
+.msg.ai .bubble li {
+  margin-bottom: 0.2em;
+}
+
+.msg.ai .bubble strong {
+  font-weight: 700;
+}
+
+.msg.ai .bubble em {
+  font-style: italic;
+}
+
+.msg.ai .bubble h1,
+.msg.ai .bubble h2,
+.msg.ai .bubble h3 {
+  font-size: 0.875rem;
+  font-weight: 700;
+  margin: 0.7em 0 0.3em;
+}
+
+.msg.ai .bubble code {
+  font-family: monospace;
+  background: #e8e0d0;
+  padding: 1px 4px;
+  border-radius: 3px;
+}

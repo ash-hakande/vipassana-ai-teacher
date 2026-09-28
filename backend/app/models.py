@@ -21,6 +21,8 @@ class SourcePassage(BaseModel):
     text: str
     source: str
     chunk_id: str
+    citation: str = ""
+    url: str = ""
 
 
 class RespondResponse(BaseModel):
