@@ -20,13 +20,20 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 # Frontend (from frontend/)
 npm install
 npm run dev        # http://localhost:3000
+npm run lint       # eslint
+npm run build      # production build
 
 # Docker (from repo root)
 ./dev.sh up        # backend container at http://localhost:9090
+./dev.sh logs      # tail backend logs
+./dev.sh restart   # no-cache rebuild + restart
+./dev.sh shell     # shell inside the backend container
 ./dev.sh prod-up   # nginx + backend + certbot
 ```
 
 There are no automated tests. Manual testing is done via the chat UI, the `/debug/search?q=...` endpoint (bypasses the LLM, shows raw retrieval results), or the `/eval` page.
+
+Note on ports: `config.py` defaults `PORT` to 8085, but both `backend/dev.sh` and Docker run on 9090 — set `PORT=9090` in `backend/.env` (or rely on the scripts' default) so links and CORS stay consistent.
 
 ## Architecture
 
@@ -39,6 +46,12 @@ Three-agent RAG pipeline, all wired together in `backend/app/orchestrator.py`:
 3. **Grounder** (`backend/app/critic.py`) — a second LLM call that reviews the draft answer against the same passages, adds citations, and corrects doctrinal errors. Returns JSON `{verdict, note, revised_answer}`.
 
 All LLM calls go through `backend/app/client.py:_call_agent`, which uses the OpenAI SDK pointed at OpenRouter's base URL.
+
+Chat sessions live in memory only (no database) — a backend restart drops all active sessions. ChromaDB is the only on-disk persistence besides `MESSAGES_FILE`.
+
+## API surface
+
+Public: `POST /session/start`, `POST /session/{id}/respond`, `POST /session/{id}/end`, `GET /health`, `GET /debug/search?q=...`, `POST /contact` (feedback form). Admin-only (HTTP Basic): `GET/POST /eval`, `GET /messages`, `/docs`, `/openapi.json`.
 
 ## Admin pages
 
@@ -72,7 +85,7 @@ Prompts live in `backend/app/prompts.py`:
 
 ## Ingestion
 
-`backend/app/ingest.py` reads PDFs/TXTs from `documents/`, chunks them, embeds with sentence-transformers, and stores in ChromaDB. Source metadata (title, author, chapter map, URL) lives in `sources.json` — ingest resolves which chapter each chunk belongs to and builds a `citation` string (e.g. `"The Art of Living, Ch. 4 — The Root of the Problem, p. 58"`). Re-ingesting rebuilds the collection from scratch to keep citations consistent.
+`backend/app/ingest.py` reads PDFs/TXTs from `documents/`, chunks them (600 chars, 100 overlap — `CHUNK_SIZE`/`CHUNK_OVERLAP` in `config.py`), embeds with sentence-transformers, and stores in the ChromaDB collection `vipassana_docs`. Source metadata (title, author, chapter map, URL) lives in `sources.json` — ingest resolves which chapter each chunk belongs to and builds a `citation` string (e.g. `"The Art of Living, Ch. 4 — The Root of the Problem, p. 58"`). Re-ingesting rebuilds the collection from scratch to keep citations consistent.
 
 ## UI
 
