@@ -78,6 +78,10 @@ class HealthResponse(BaseModel):
     documents_indexed: int
 
 
+class AnnouncementResponse(BaseModel):
+    message: str
+
+
 # ── In-memory session store ─────────────────────────────────────────────────
 
 @dataclass

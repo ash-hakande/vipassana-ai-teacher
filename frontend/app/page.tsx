@@ -88,6 +88,16 @@ function SourcesPanel({ sources }: { sources: SourcePassage[] }) {
   );
 }
 
+const DISMISSED_ANNOUNCEMENT_KEY = "dismissedAnnouncement";
+
+function readDismissedAnnouncement() {
+  try {
+    return localStorage.getItem(DISMISSED_ANNOUNCEMENT_KEY);
+  } catch {
+    return null;
+  }
+}
+
 async function parseApiError(response: Response) {
   try {
     const data = await response.json();
@@ -104,6 +114,7 @@ export default function Home() {
   const [status, setStatus] = useState("Starting session...");
   const [isSending, setIsSending] = useState(false);
   const [isStarting, setIsStarting] = useState(false);
+  const [announcement, setAnnouncement] = useState("");
   const scrollRef = useRef<HTMLDivElement>(null);
 
   const shortSessionId = useMemo(() => sessionId?.slice(0, 8), [sessionId]);
@@ -150,6 +161,28 @@ export default function Home() {
   useEffect(() => {
     startSession();
   }, [startSession]);
+
+  // The banner is optional: any failure just means no banner
+  useEffect(() => {
+    fetch(`${apiBaseUrl}/announcement`)
+      .then((response) => (response.ok ? response.json() : null))
+      .then((data) => {
+        const message = typeof data?.message === "string" ? data.message : "";
+        if (message && message !== readDismissedAnnouncement()) {
+          setAnnouncement(message);
+        }
+      })
+      .catch(() => {});
+  }, []);
+
+  function dismissAnnouncement() {
+    try {
+      localStorage.setItem(DISMISSED_ANNOUNCEMENT_KEY, announcement);
+    } catch {
+      // Storage unavailable: the banner just returns on the next load
+    }
+    setAnnouncement("");
+  }
 
   async function sendMessage(event?: FormEvent<HTMLFormElement>) {
     event?.preventDefault();
@@ -221,6 +254,15 @@ export default function Home() {
   return (
     <main className="container">
       <section>
+        {announcement ? (
+          <div className="announcement" role="status">
+            <p>{announcement}</p>
+            <button type="button" aria-label="Dismiss announcement" onClick={dismissAnnouncement}>
+              &times;
+            </button>
+          </div>
+        ) : null}
+
         <header>
           <h1>Vipassana AI Assistant</h1>
           <p>Answers grounded in the provided teaching documents. AI can make mistakes - always verify with a qualified teacher.</p>
