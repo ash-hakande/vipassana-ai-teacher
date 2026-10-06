@@ -51,7 +51,7 @@ Chat sessions live in memory only (no database) — a backend restart drops all 
 
 ## API surface
 
-Public: `POST /session/start`, `POST /session/{id}/respond`, `POST /session/{id}/end`, `GET /health`, `GET /debug/search?q=...`, `POST /contact` (feedback form). Admin-only (HTTP Basic): `GET/POST /eval`, `GET /messages`, `/docs`, `/openapi.json`.
+Public: `POST /session/start`, `POST /session/{id}/respond`, `POST /session/{id}/end`, `GET /health`, `GET /announcement` (maintenance banner text), `GET /debug/search?q=...`, `POST /contact` (feedback form). Admin-only (HTTP Basic): `GET/POST /eval`, `GET /messages`, `/docs`, `/openapi.json`.
 
 ## Admin pages
 
@@ -73,6 +73,7 @@ Behind HTTP Basic auth (`require_admin` in `backend/app/main.py`), and disabled 
 | `TOP_K_CHUNKS` | Number of passages retrieved per query (default: 5) |
 | `ADMIN_USER` / `ADMIN_PASSWORD` | Login for the admin pages |
 | `MESSAGES_FILE` | Where feedback is stored (default `../data/messages.jsonl`; `/app/data/messages.jsonl` in Docker) |
+| `ANNOUNCEMENT_FILE` | Maintenance banner text served by `GET /announcement` and shown above the chat (default `../data/announcement.txt`; `/app/data/announcement.txt` in Docker). Read per request; a missing or empty file hides the banner |
 | `CORS_EXTRA_ORIGINS` | Frontend origins allowed to call the API |
 | `LOG_LEVEL` | Set to `DEBUG` to see retrieval + LLM details |
 
