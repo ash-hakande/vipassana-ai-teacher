@@ -32,6 +32,8 @@ class Config:
     ADMIN_PASSWORD: str = os.getenv("ADMIN_PASSWORD", "")
     # Messages sent through the feedback form; viewable at /messages (admin login)
     MESSAGES_FILE: str = os.getenv("MESSAGES_FILE", "../data/messages.jsonl")
+    # Maintenance notice shown as a banner above the chat; missing or empty file means no banner
+    ANNOUNCEMENT_FILE: str = os.getenv("ANNOUNCEMENT_FILE", "../data/announcement.txt")
 
     @classmethod
     def validate(cls):

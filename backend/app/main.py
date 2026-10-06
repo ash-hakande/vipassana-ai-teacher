@@ -7,7 +7,7 @@ import os
 import secrets
 from datetime import datetime, timezone
 
-from fastapi import Depends, FastAPI, HTTPException, Query
+from fastapi import Depends, FastAPI, HTTPException, Query, Response
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.openapi.docs import get_swagger_ui_html
 from fastapi.responses import HTMLResponse
@@ -16,6 +16,7 @@ from fastapi.security import HTTPBasic, HTTPBasicCredentials
 from app.config import Config, config
 from app.eval_runner import run_eval_config
 from app.models import (
+    AnnouncementResponse,
     ContactRequest,
     EndSessionResponse,
     EvalRequest,
@@ -96,6 +97,21 @@ async def health():
     except Exception:
         count = 0
     return {"status": "ok", "documents_indexed": count}
+
+
+_ANNOUNCEMENT_MAX_CHARS = 500
+
+
+@app.get("/announcement", response_model=AnnouncementResponse)
+async def announcement(response: Response):
+    """Maintenance notice for the banner; read on every request so edits apply without a restart."""
+    response.headers["Cache-Control"] = "no-store"
+    try:
+        with open(config.ANNOUNCEMENT_FILE, encoding="utf-8", errors="replace") as f:
+            message = f.read().strip()
+    except OSError:
+        message = ""
+    return {"message": message[:_ANNOUNCEMENT_MAX_CHARS]}
 
 
 @app.get("/debug/search")
